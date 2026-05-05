@@ -54,6 +54,7 @@ Kokkan is built around a few strict principles:
 
 At a high level, Kokkan follows this flow:
 
+```
 Observation (detectors)
 ↓
 Context & Correlation (engine)
@@ -63,6 +64,7 @@ Policy Evaluation (config + safeguards)
 Optional Remediation (responders)
 ↓
 Audit & Reporting
+```
 
 Policies define **what is allowed**.  
 - Safeguards ensure **it is not abused**.  
