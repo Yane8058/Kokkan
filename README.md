@@ -2,6 +2,10 @@
 
 **Kokkan** is a safety‑first operational decision layer for production systems.
 
+<p align="left">
+  <img src="assets/Designer.png" width="350" height="350" alt="Kokkan Logo">
+</p>
+
 It observes system conditions, evaluates them against explicit policies,  
 and **decides whether a bounded, conservative remediation is allowed**.
 
