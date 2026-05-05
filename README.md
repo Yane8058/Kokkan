@@ -2,14 +2,9 @@
 Kokkan/
 ├── README.md
 ├── LICENSE
-├── CHANGELOG.md
 │
 ├── docs/
 │   ├── architecture.md
-│   ├── philosophy.md
-│   ├── safety-model.md
-│   ├── supported-failures.md
-│   └── decision-flow.md
 │
 ├── config/
 │   ├── global.yaml
@@ -57,18 +52,12 @@ Kokkan/
 │
 ├── scripts/
 │   ├── install.sh
-│   ├── uninstall.sh
-│   └── simulate_incident.sh
+│   └── uninstall.sh
 │
 ├── tests/
 │   ├── test_detectors.py
 │   ├── test_responders.py
 │   └── test_safeguards.py
-│
-└── .github/
-    ├── workflows/
-    │   └── ci.yml
-    └── ISSUE_TEMPLATE.md
 
 
 ```
