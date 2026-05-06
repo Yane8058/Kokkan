@@ -18,32 +18,39 @@ Each layer has a single responsibility and must not bleed into others.
 
 flowchart TD
 
-    A[Start Cycle] --> B[Run Detectors]
+    %% MAIN FLOW
+    A[Start Cycle]
+    B[Run Detectors]
+    C[Build Context]
+    D[Evaluate Decision]
 
-    B --> C[Build Context]
+    A --> B --> C --> D
 
-    C --> D[Evaluate Decision]
-
+    %% NO ACTION PATH
     D -->|No action needed| E[Log Decision]
     E --> Z[End Cycle]
 
-    D -->|Action candidate| F[Load Action Policy]
+    %% ACTION PATH
+    D -->|Action candidate| P[Load Policy]
+    P --> V[Validate Action]
 
-    F --> G[Validate Action]
+    %% VALIDATION BRANCH
+    V -->|Invalid| R[Reject]
+    R --> RL[Log Decision]
+    RL --> Z
 
-    G -->|Invalid| H[Reject + Log]
-    H --> Z
+    V -->|Valid| S[Apply Safeguards]
 
-    G -->|Valid| I[Apply Safeguards]
+    %% SAFEGUARD BRANCH
+    S -->|Blocked| SB[Blocked]
+    SB --> SL[Log Decision]
+    SL --> Z
 
-    I -->|Blocked| J[Blocked by Safeguards + Log]
-    J --> Z
+    S -->|Allowed| X[Execute Responder]
 
-    I -->|Allowed| K[Execute Responder]
-
-    K --> L[Record Action]
-
-    L --> Z[End Cycle]
+    %% SUCCESS PATH
+    X --> L[Record Action]
+    L --> Z
 
 
 > Note: Most cycles end without executing any action.
