@@ -1,1 +1,35 @@
-# Runtime behavior and environment flags (e.g. dry‑run, audit).
+# Runtime behavior and environment flags (e.g. dry‑run, audit).# Environment metadata
+environment: production
+
+# Runtime behavior
+dry_run: true
+log_level: info
+
+# Execution mode
+interval_seconds: 60
+max_runtime_seconds: 30
+
+# Audit configuration
+audit:
+  enabled: true
+  log_path: /var/log/kokkan/audit.log
+
+# Context retention (in-memory or lightweight state)
+context:
+  max_entries: 100
+  retention_seconds: 900
+
+# Safety defaults (fallback if not defined per-action)
+safety_defaults:
+  enforce_rate_limit: true
+  enforce_validation: true
+  fail_closed: true
+
+# Feature toggles (explicit, no hidden behavior)
+features:
+  enable_responders: true
+  enable_safeguards: true
+
+# System behavior under failure
+failure_mode:
+  on_error: log_and_skip   # options: log_and_skip | stop | retry
