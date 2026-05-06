@@ -1,1 +1,29 @@
-# Defines when a condition becomes meaningful.
+# Disk usage thresholds
+disk_usage:
+  root:
+    warn: 85
+    critical: 90
+    min_duration_seconds: 300
+
+# Memory pressure thresholds
+memory_pressure:
+  warn: 80
+  critical: 95
+  min_duration_seconds: 180
+
+# CPU usage thresholds
+cpu_spike:
+  warn: 70
+  critical: 90
+  min_duration_seconds: 150
+
+# Service health thresholds
+service_health:
+  restart_threshold: 5        # failures in window
+  window_seconds: 350         # time window
+
+# Network latency thresholds (milliseconds)
+network_latency:
+  warn_ms: 100
+  critical_ms: 300
+  min_duration_seconds: 150
