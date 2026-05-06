@@ -17,7 +17,7 @@ Kokkan is structured as a pipeline of clearly separated components:
 Each layer has a single responsibility and must not bleed into others.
 
 <p align="left">
-  <img src="asset/Kokkan_flowchart.png" width="400" height="600" alt="Kokkan Flowchart">
+  <img src="Kokkan/asset/Kokkan_flowchart.png" width="400" height="600" alt="Kokkan Flowchart">
 </p>
 
 > **Note: Most cycles end without executing any action.**
