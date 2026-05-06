@@ -1,1 +1,66 @@
-# Defines which actions are allowed, and within which limits.
+# Disk cleanup action
+cleanup_disk:
+  enabled: true
+
+  targets:
+    - /var/log
+    - /tmp
+
+  limits:
+    max_reclaim_mb: 1024
+
+  safeguards:
+    allow_on_root: false
+    require_sustained_condition: true
+
+  rate_limit:
+    max_actions: 1
+    window_seconds: 3600
+
+
+# Service restart action
+restart_service:
+  enabled: false
+
+  safeguards:
+    require_explicit_allowlist: true
+
+  rate_limit:
+    max_actions: 2
+    window_seconds: 600
+
+
+# Log rotation action
+rotate_logs:
+  enabled: true
+
+  targets:
+    - /var/log
+
+  rate_limit:
+    max_actions: 2
+    window_seconds: 3600
+
+
+# Memory reclaim action
+reclaim_memory:
+  enabled: false
+
+  limits:
+    max_reclaim_mb: 512
+
+  rate_limit:
+    max_actions: 1
+    window_seconds: 900
+
+
+# CPU throttling action
+throttle_process:
+  enabled: false
+
+  safeguards:
+    require_process_allowlist: true
+
+  rate_limit:
+    max_actions: 1
+    window_seconds: 600
