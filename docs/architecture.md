@@ -16,45 +16,12 @@ Kokkan is structured as a pipeline of clearly separated components:
 
 Each layer has a single responsibility and must not bleed into others.
 
-flowchart TD
+<p align="left">
+  <img src="asset/Kokkan_flowchart.png" width="400" height="600" alt="Kokkan Flowchart">
+</p>
 
-    %% MAIN FLOW
-    A[Start Cycle]
-    B[Run Detectors]
-    C[Build Context]
-    D[Evaluate Decision]
-
-    A --> B --> C --> D
-
-    %% NO ACTION PATH
-    D -->|No action needed| E[Log Decision]
-    E --> Z[End Cycle]
-
-    %% ACTION PATH
-    D -->|Action candidate| P[Load Policy]
-    P --> V[Validate Action]
-
-    %% VALIDATION BRANCH
-    V -->|Invalid| R[Reject]
-    R --> RL[Log Decision]
-    RL --> Z
-
-    V -->|Valid| S[Apply Safeguards]
-
-    %% SAFEGUARD BRANCH
-    S -->|Blocked| SB[Blocked]
-    SB --> SL[Log Decision]
-    SL --> Z
-
-    S -->|Allowed| X[Execute Responder]
-
-    %% SUCCESS PATH
-    X --> L[Record Action]
-    L --> Z
-
-
-> Note: Most cycles end without executing any action.
-> This is intentional and aligned with Kokkan’s safety-first design.
+> **Note: Most cycles end without executing any action.**
+> **This is intentional and aligned with Kokkan’s safety-first design.**
 
 ---
 
