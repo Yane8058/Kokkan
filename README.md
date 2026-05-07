@@ -82,6 +82,13 @@ Policies define **what is allowed**.
 Kokkan/
 ├── README.md
 ├── LICENSE
+├── .env-example
+├── .gitignore
+├── requirement.txt
+│
+├── asset/
+|   ├── logo.png
+|   └── Kokkan_flowchart.png
 │
 ├── docs/
 │   ├── architecture.md
@@ -117,28 +124,14 @@ Kokkan/
 │   ├── context_builder.py
 │   └── audit_logger.py
 │
-├── runbooks/
-│   ├── disk_full.md
-│   ├── service_down.md
-│   ├── high_memory.md
-│   └── cpu_spike.md
-│
-├── reports/
-│   └── example-incident-report.json
 │
 ├── systemd/
-│   ├── self-healing-ops.service
-│   └── self-healing-ops.timer
+│   ├── kokkan.service
+│   └── kokkan.timer
 │
 ├── scripts/
 │   ├── install.sh
 │   └── uninstall.sh
-│
-├── tests/
-│   ├── test_detectors.py
-│   ├── test_responders.py
-│   └── test_safeguards.py
-
 
 ```
 
