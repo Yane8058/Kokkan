@@ -6,7 +6,7 @@ def load_thresholds():
     with open("config/thresholds.yaml") as f:
         return yaml.safe_load(f)
 
-# ---- DECISION ENGINE ----
+# ---- DISK ----
 
 def evaluate_disk_usage(context, report, thresholds):
     disk_cfg = thresholds["disk_usage"]["root"]
@@ -37,6 +37,8 @@ def evaluate_disk_usage(context, report, thresholds):
 
     return decisions
 
+# ---- MEMORY ----
+
 def evaluate_memory(context, report, thresholds):
     cfg = thresholds["memory"]
 
@@ -60,7 +62,9 @@ def evaluate_memory(context, report, thresholds):
         })
 
     return decisions
-    
+
+# ---- CPU ----
+
 def evaluate_cpu(context, report, thresholds):
     cfg = thresholds["cpu"]
 
@@ -84,6 +88,7 @@ def evaluate_cpu(context, report, thresholds):
 
     return decisions
 
+# ---- NETWORK LATENCY ----
 
 def evaluate_network(context, report, thresholds):
     cfg = thresholds["network_latency"]
@@ -109,6 +114,7 @@ def evaluate_network(context, report, thresholds):
 
     return decisions
 
+# ---- SERVICES ----
 
 def evaluate_services(context, report, thresholds):
     cfg = thresholds["services"]
@@ -138,7 +144,8 @@ def evaluate_services(context, report, thresholds):
 
     return decisions
 
-# ✅ Entrypoint for healer.py
+# ---- ENTRY POINT ----
+
 def run_decision(context, reports, thresholds):
     decisions = []
 
