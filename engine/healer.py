@@ -56,7 +56,7 @@ def execute(decision, dry_run):
         print(f"[DRY-RUN] {decision}")
         return
 
-    # ⚠️ Placeholder (non eseguire davvero ancora)
+    # ⚠️ Placeholder (still not execute)
     print(f"[EXECUTE] {decision}")
 
 
