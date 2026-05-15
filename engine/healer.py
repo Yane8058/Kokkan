@@ -123,7 +123,5 @@ def run_cycle(context):
 
 if __name__ == "__main__":
     context = {}
-
-    while True:
-        context = run_cycle(context)
-        time.sleep(10)
+    context = run_cycle(context)
+#        time.sleep(10)  # run every 10 sec as a systemd service
