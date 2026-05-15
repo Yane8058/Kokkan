@@ -1,1 +1,11 @@
-# kokkan-ops.service -- Debian/Ubuntu Based
+[Unit]
+Description=Kokkan Self-Healing System
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/python3 /opt/kokkan/healer.py
+Restart=always
+User=root
+
+[Install]
+WantedBy=multi-user.target
