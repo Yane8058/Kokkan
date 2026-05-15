@@ -1,1 +1,10 @@
-# kokkan-ops.timer
+[Unit]
+Description=Run Kokkan every 10 seconds
+
+[Timer]
+OnBootSec=10
+OnUnitActiveSec=10
+Unit=kokkan.service
+
+[Install]
+WantedBy=timers.target
