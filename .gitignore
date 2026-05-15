@@ -1,7 +1,7 @@
-# Environment
-.env
+# ======= Environment ======= #
+*.env
 
-# Python
+# ======= Python ======= #
 __pycache__/
 *.py[cod]
 *.pyo
@@ -11,6 +11,14 @@ build/
 .venv/
 venv/
 
-# Reports / logs
+# ======= Reports / logs ======= #
 reports/*.json
 *.log
+
+# ======= OS & Editor ======= #
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.idea/
+.vscode/
