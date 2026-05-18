@@ -150,6 +150,9 @@ Kokkan configuration is **purely declarative** and stored in YAML.
 - `actions.yaml`  
   Defines **which actions are allowed**, and within which limits.
 
+- `correlation.yaml`  
+  Defines **the correlation between the threshold**.
+
 YAML files act as **structured dictionaries**, not as a DSL or scripting language.  
 All logic remains in the codebase.
 
