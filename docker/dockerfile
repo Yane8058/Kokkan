@@ -13,7 +13,6 @@ COPY detectors/ ./detectors/
 COPY engine/ ./engine/
 COPY responders/ ./responders/
 COPY safeguards/ ./safeguards/
-COPY scripts/ ./scripts/
 
 # ---- Run Orchestrator ----
 CMD ["python","./engine/healer.py"]
