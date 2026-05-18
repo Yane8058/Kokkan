@@ -90,9 +90,6 @@ Kokkan/
 |   ├── logo.png
 |   └── Kokkan_flowchart.png
 │
-├── docs/
-│   ├── architecture.md
-│
 ├── config/
 │   ├── global.yaml
 │   ├── thresholds.yaml
@@ -104,6 +101,19 @@ Kokkan/
 │   ├── memory_pressure.py
 │   ├── cpu_spike.py
 │   └── network_latency.py
+│ 
+├── docker/
+│   ├── docekrfile
+│   └── .dockerignore
+│
+├── docs/
+│   ├── architecture.md
+│
+├── engine/
+│   ├── healer.py
+│   ├── decision_engine.py
+│   ├── context_builder.py
+│   └── audit_logger.py
 │
 ├── responders/
 │   ├── cleanup_disk.py
@@ -118,20 +128,13 @@ Kokkan/
 │   ├── rollback.py
 │   └── action_validator.py
 │
-├── engine/
-│   ├── healer.py
-│   ├── decision_engine.py
-│   ├── context_builder.py
-│   └── audit_logger.py
-│
+├── scripts/
+│   ├── install.sh
+│   └── uninstall.sh
 │
 ├── systemd/
 │   ├── kokkan.service
 │   └── kokkan.timer
-│
-├── scripts/
-│   ├── install.sh
-│   └── uninstall.sh
 
 ```
 

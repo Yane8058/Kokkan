@@ -35,4 +35,3 @@ def validate_action(decision, actions_cfg):
             return False, "rate_limited"
 
     return True, "allowed"
-``

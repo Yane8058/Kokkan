@@ -1,0 +1,20 @@
+# ======= Git and docs ======= #
+.git/
+.gitignore
+*.png
+docs/
+
+# ======= Config & Secrets ======= #
+.env
+.env.example
+
+# ======= Temp & venv files ======= #
+**/__pycache__/
+**/*.pyc
+venv/
+.venv/
+env/
+
+# ======= Folders Not needed ======= #
+scripts/
+systemd/
