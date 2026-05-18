@@ -7,6 +7,17 @@ It does NOT apply policy.
 It is only used to track the duration of events.
 """
 
+# Minimum consecutive cycles before a signal is considered stable (noise suppression).
+# services = 1 because failures are always significant and should never be ignored.
+STABILITY_REQUIRED = {
+    "disk":     3,
+    "memory":   2,
+    "cpu":      3,
+    "network":  2,
+    "services": 1,
+}
+
+
 # ---- DISK ----
 
 def update_disk_context(context, report, thresholds):
@@ -16,15 +27,16 @@ def update_disk_context(context, report, thresholds):
         mount = part["mountpoint"]
         usage = part["percent_used"]
 
-        prev = context.get(mount, {}).get("duration", 0)
+        prev_warn     = context.get(mount, {}).get("warn_duration", 0)
+        prev_critical = context.get(mount, {}).get("critical_duration", 0)
 
-        if usage >= cfg["critical"]:
-            duration = prev + 1
-        else:
-            duration = 0
+        warn_duration     = prev_warn + 1     if usage >= cfg["warn"]     else 0
+        critical_duration = prev_critical + 1 if usage >= cfg["critical"] else 0
 
         context[mount] = {
-            "duration": duration
+            "warn_duration":     warn_duration,
+            "critical_duration": critical_duration,
+            "stable": warn_duration >= STABILITY_REQUIRED["disk"],
         }
 
     return context
@@ -33,18 +45,19 @@ def update_disk_context(context, report, thresholds):
 # ---- MEMORY ----
 
 def update_memory_context(context, report, thresholds):
-    cfg = thresholds["memory"]
+    cfg = thresholds["memory_pressure"]
 
-    usage = report["percent_used"]
-    prev = context.get("memory", {}).get("duration", 0)
+    usage         = report["percent_used"]
+    prev_warn     = context.get("memory", {}).get("warn_duration", 0)
+    prev_critical = context.get("memory", {}).get("critical_duration", 0)
 
-    if usage >= cfg["critical"]:
-        duration = prev + 1
-    else:
-        duration = 0
+    warn_duration     = prev_warn + 1     if usage >= cfg["warn"]     else 0
+    critical_duration = prev_critical + 1 if usage >= cfg["critical"] else 0
 
     context["memory"] = {
-        "duration": duration
+        "warn_duration":     warn_duration,
+        "critical_duration": critical_duration,
+        "stable": warn_duration >= STABILITY_REQUIRED["memory"],
     }
 
     return context
@@ -53,18 +66,19 @@ def update_memory_context(context, report, thresholds):
 # ---- CPU ----
 
 def update_cpu_context(context, report, thresholds):
-    cfg = thresholds["cpu"]
+    cfg = thresholds["cpu_spike"]
 
-    usage = report["percent_used"]
-    prev = context.get("cpu", {}).get("duration", 0)
+    usage         = report["percent_used"]
+    prev_warn     = context.get("cpu", {}).get("warn_duration", 0)
+    prev_critical = context.get("cpu", {}).get("critical_duration", 0)
 
-    if usage >= cfg["critical"]:
-        duration = prev + 1
-    else:
-        duration = 0
+    warn_duration     = prev_warn + 1     if usage >= cfg["warn"]     else 0
+    critical_duration = prev_critical + 1 if usage >= cfg["critical"] else 0
 
     context["cpu"] = {
-        "duration": duration
+        "warn_duration":     warn_duration,
+        "critical_duration": critical_duration,
+        "stable": warn_duration >= STABILITY_REQUIRED["cpu"],
     }
 
     return context
@@ -75,16 +89,17 @@ def update_cpu_context(context, report, thresholds):
 def update_network_context(context, report, thresholds):
     cfg = thresholds["network_latency"]
 
-    latency = report.get("latency_ms")
-    prev = context.get("network", {}).get("duration", 0)
+    latency       = report.get("latency_ms", 0)
+    prev_warn     = context.get("network", {}).get("warn_duration", 0)
+    prev_critical = context.get("network", {}).get("critical_duration", 0)
 
-    if latency is not None and latency >= cfg["critical"]:
-        duration = prev + 1
-    else:
-        duration = 0
+    warn_duration     = prev_warn + 1     if latency >= cfg["warn_ms"]     else 0
+    critical_duration = prev_critical + 1 if latency >= cfg["critical_ms"] else 0
 
     context["network"] = {
-        "duration": duration
+        "warn_duration":     warn_duration,
+        "critical_duration": critical_duration,
+        "stable": warn_duration >= STABILITY_REQUIRED["network"],
     }
 
     return context
@@ -93,21 +108,18 @@ def update_network_context(context, report, thresholds):
 # ---- SERVICES ----
 
 def update_service_context(context, report, thresholds):
-    cfg = thresholds["services"]
+    cfg = thresholds["service_health"]
 
     for svc in report.get("services", []):
-        name = f"service:{svc['service']}"
+        name    = f"service:{svc['service']}"
         healthy = svc.get("healthy", False)
 
-        prev = context.get(name, {}).get("duration", 0)
-
-        if not healthy:
-            duration = prev + 1
-        else:
-            duration = 0
+        prev_duration = context.get(name, {}).get("duration", 0)
+        duration      = prev_duration + 1 if not healthy else 0
 
         context[name] = {
-            "duration": duration
+            "duration": duration,
+            "stable":   duration >= STABILITY_REQUIRED["services"],
         }
 
     return context
@@ -119,7 +131,6 @@ def update_context(context, reports, thresholds):
     """
     Entrypoint for context update.
     """
-
     context = update_disk_context(context, reports["disk"], thresholds)
     context = update_memory_context(context, reports["memory"], thresholds)
     context = update_cpu_context(context, reports["cpu"], thresholds)

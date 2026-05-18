@@ -3,14 +3,14 @@ Healer - Kokkan main orchestrator
 """
 
 import yaml
-import time
+# import time
 
 # ---- DETECTORS ----
 
 from detectors.disk_usage import du
-from detectors.memory_pressure import memory_pressure
-from detectors.cpu_usage import cpu_usage
-from detectors.network_latency import network_latency
+from detectors.memory_pressure import ram_pressure
+from detectors.cpu_spike import cpu_spike
+from detectors.network_latency import detect
 from detectors.service_health import detect as detect_services
 
 # ---- SAFEGUARDS ----
@@ -22,7 +22,7 @@ from safeguards.rollback import rollback
 from engine.context_builder import update_context
 from engine.decision_engine import run_decision
 from engine.audit_logger import log_event
-
+from engine.correlation_engine import evaluate_correlations
 
 # ---- Responders ----
 from responders.restart_service import restart_service
@@ -45,6 +45,7 @@ def load_config():
         "global": load_yaml("config/global.yaml"),
         "thresholds": load_yaml("config/thresholds.yaml"),
         "actions": load_yaml("config/actions.yaml"),
+        "correlation": load_yaml("config/correlation.yaml")
     }
 
 
@@ -82,13 +83,15 @@ def run_cycle(context):
     thresholds = cfg["thresholds"]
     actions_cfg = cfg["actions"]
     global_cfg = cfg["global"]
+    correlation_cfg = cfg["correlation"]  
 
+    
     # ---- DETECTORS ----
     reports = {
         "disk": du(),
-        "memory": memory_pressure(),
-        "cpu": cpu_usage(),
-        "network": network_latency(),
+        "memory": ram_pressure(),
+        "cpu": cpu_spike(),
+        "network": detect(),
         "services": detect_services()
     }
 
@@ -98,6 +101,10 @@ def run_cycle(context):
     # ---- DECISION ----
     decisions = run_decision(context, reports, thresholds)
 
+    # ---- CORRELATION (multi-threshold rules) ----        # [CORRELATION] block
+    correlated = evaluate_correlations(reports, thresholds, correlation_cfg, context)
+    decisions = _merge_decisions(decisions, correlated)
+
     # ---- VALIDATION + EXECUTION ----
     for d in decisions:
         allowed, reason = validate_action(d, actions_cfg)
@@ -106,17 +113,26 @@ def run_cycle(context):
             print(f"[SKIP] {reason} → {d}")
             continue
         try:
-            handle(d, global_cfg.get("dry_run",True), execute)
-
+            handle(d, global_cfg.get("dry_run", True), execute)
             log_event("execution", d, "executed")
-            
+
         except Exception as e:
             print(f"[ERROR] execution failed → {d}")
             print(f"[ERROR] reason → {e}")
-    
             rollback(d)
 
     return context
+
+
+def _merge_decisions(base, correlated):                        # [CORRELATION] helper
+    """
+    Merge correlation decisions into the base list.
+    Deduplicates by action+target: correlation decisions take priority
+    (they carry richer severity and context).
+    """
+    seen = {(d["action"], d.get("target")) for d in correlated}
+    filtered_base = [d for d in base if (d["action"], d.get("target")) not in seen]
+    return correlated + filtered_base
 
 
 # ---- ENTRY POINT ----

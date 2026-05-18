@@ -1,0 +1,154 @@
+# Correlates multiple threshold signals before the engine authorizes a remediation.
+# All threshold references map directly to keys defined in thresholds.yaml.
+
+correlations:
+
+  # ─── COMPOUND RULES ───────────────────────────────────────────────────────────
+
+  - id: memory_and_cpu_pressure
+    description: "High memory AND sustained CPU spike — likely runaway process"
+    type: compound
+    operator: AND
+    window_seconds: 150           # matches cpu_spike.min_duration_seconds
+    thresholds:
+      - source: memory_pressure
+        level: critical           # fires at >= 95%
+      - source: cpu_spike
+        level: critical           # fires at >= 90%
+    min_occurrences: 2
+    severity: critical
+    allowed_responders:
+      - reclaim_memory
+      - throttle_process
+    cooldown_seconds: 300
+
+  - id: memory_warn_and_cpu_warn
+    description: "Both memory and CPU in warn state — degrade gracefully before hitting critical"
+    type: compound
+    operator: AND
+    window_seconds: 180
+    thresholds:
+      - source: memory_pressure
+        level: warn               # fires at >= 80%
+      - source: cpu_spike
+        level: warn               # fires at >= 70%
+    min_occurrences: 1
+    severity: high
+    allowed_responders:
+      - throttle_process
+    cooldown_seconds: 180
+
+  - id: disk_pressure_with_service_failures
+    description: "Disk filling AND service restarting — cleanup may unblock the service"
+    type: compound
+    operator: AND
+    window_seconds: 350           # matches service_health.window_seconds
+    thresholds:
+      - source: disk_usage.root
+        level: warn               # fires at >= 85%
+      - source: service_health
+        level: breach             # fires when restarts >= restart_threshold (5)
+    severity: high
+    allowed_responders:
+      - cleanup_disk
+      - rotate_logs
+    cooldown_seconds: 600
+
+  # ─── COMPOSITE RULES ──────────────────────────────────────────────────────────
+
+  - id: service_and_latency_degradation
+    description: "Service failures OR high latency — possible cascading failure"
+    type: composite
+    operator: OR
+    window_seconds: 150           # matches network_latency.min_duration_seconds
+    thresholds:
+      - source: service_health
+        level: breach
+      - source: network_latency
+        level: warn               # fires at >= 100ms
+    min_breached: 1
+    escalate_if_breached: 2       # both active → escalate to critical
+    base_severity: high
+    escalated_severity: critical
+    allowed_responders:
+      - restart_service
+    cooldown_seconds: 120
+
+  - id: full_resource_saturation
+    description: "Disk + Memory + CPU all in warn or above — system under heavy stress"
+    type: composite
+    operator: OR
+    window_seconds: 300
+    thresholds:
+      - source: disk_usage.root
+        level: warn
+      - source: memory_pressure
+        level: warn
+      - source: cpu_spike
+        level: warn
+    min_breached: 3               # all three must be active simultaneously
+    escalate_if_breached: 3
+    base_severity: high
+    escalated_severity: critical
+    allowed_responders:
+      - cleanup_disk
+      - rotate_logs
+      - reclaim_memory
+      - throttle_process
+    cooldown_seconds: 600
+
+  # ─── ESCALATION RULES ─────────────────────────────────────────────────────────
+
+  - id: escalate_disk_warn_to_critical
+    description: "Disk warning unresolved after min_duration — treat as critical"
+    type: escalation
+    source: disk_usage.root
+    source_level: warn
+    persist_seconds: 300          # matches disk_usage.root.min_duration_seconds
+    escalate_to_level: critical
+    notify: true
+
+  - id: escalate_memory_warn_to_critical
+    description: "Memory warn persisting beyond min_duration — escalate"
+    type: escalation
+    source: memory_pressure
+    source_level: warn
+    persist_seconds: 180          # matches memory_pressure.min_duration_seconds
+    escalate_to_level: critical
+    notify: true
+
+  - id: escalate_latency_warn_to_critical
+    description: "Network latency sustained above warn threshold — escalate"
+    type: escalation
+    source: network_latency
+    source_level: warn
+    persist_seconds: 150          # matches network_latency.min_duration_seconds
+    escalate_to_level: critical
+    notify: true
+
+  # ─── INHIBITION RULES ─────────────────────────────────────────────────────────
+
+  - id: inhibit_restart_under_cpu_critical
+    description: "Do not restart a service when CPU is already critical — would worsen load spike"
+    type: inhibition
+    inhibit_responder: restart_service
+    when_threshold_active:
+      source: cpu_spike
+      level: critical
+    reason: "Restarting a service during CPU saturation risks worsening the spike"
+
+  - id: inhibit_cleanup_under_memory_critical
+    description: "Avoid disk cleanup scripts when memory is critical — frees I/O for recovery"
+    type: inhibition
+    inhibit_responder: cleanup_disk
+    when_threshold_active:
+      source: memory_pressure
+      level: critical
+    reason: "Heavy I/O during memory saturation may trigger OOM before cleanup completes"
+
+# ─── GLOBAL CORRELATION SETTINGS ──────────────────────────────────────────────
+settings:
+  evaluation_interval_seconds: 30
+  max_active_correlations: 10
+  dry_run_inherits_global: true
+  strict_threshold_refs: true       # engine will error if a source key is not found in thresholds.yaml
