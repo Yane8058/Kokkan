@@ -233,17 +233,6 @@ Responders:
 
 ---
 
-## Runbooks and Reports
-
-Kokkan keeps humans in the loop.
-
-- **Runbooks** document expected failure scenarios and responses.
-- **Reports** provide structured, post‑incident visibility.
-
-Automation without explanation is considered incomplete.
-
----
-
 ## Operational Model
 
 Kokkan is typically deployed as a scheduled or event‑driven service,
