@@ -43,7 +43,7 @@ chmod +x promtail-linux-amd64
 sudo mv promtail-linux-amd64 /usr/local/bin/promtail
 
 # copy config file
-sudo cp ../config/promtail_config.yaml /etc/promtail/promtail_config.yaml
+sudo cp ../config/promtail.yaml /etc/promtail/promtail.yaml
 
 # copy systemd file
 sudo cp ../systemd/promtail.service /etc/systemd/system/
