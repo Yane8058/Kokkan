@@ -93,6 +93,9 @@ Kokkan/
 ├── config/
 │   ├── global.yaml
 │   ├── thresholds.yaml
+│   ├── correlationn.yaml
+│   ├── loki_config.yaml
+│   ├── promtail.yaml
 │   └── actions.yaml
 │
 ├── detectors/
@@ -104,6 +107,7 @@ Kokkan/
 │ 
 ├── docker/
 │   ├── docekrfile
+│   ├── docker-compose-OBS.yaml
 │   └── .dockerignore
 │
 ├── docs/
@@ -133,6 +137,8 @@ Kokkan/
 │   └── uninstall.sh
 │
 ├── systemd/
+│   ├── loki.service
+│   ├── promtail.service
 │   ├── kokkan.service
 │   └── kokkan.timer
 
