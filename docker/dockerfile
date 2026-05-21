@@ -1,7 +1,7 @@
 
 # ---- Define python version e workdir app ----
 FROM python:3.11-slim
-WORKDIR /kokkan-v1.1.0
+WORKDIR /kokkan
 
 # ---- Define python dependencies ----
 COPY requirement.txt .
