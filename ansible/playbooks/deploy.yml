@@ -1,0 +1,8 @@
+- name: deployment
+  hosts: all
+  become: true
+
+  roles:
+    - common
+    - docker
+    - kokkan

@@ -27,6 +27,26 @@ Each layer has a single responsibility and must not bleed into others.
 
 ## Component Breakdown
 
+At a high level, Kokkan follows this flow:
+
+```
+Observation (detectors)
+↓
+Context & Correlation (engine)
+↓
+Policy Evaluation (config + safeguards)
+↓
+Optional Remediation (responders)
+↓
+Audit & Reporting
+```
+
+Policies define **what is allowed**.  
+- Safeguards ensure **it is not abused**.  
+- The engine decides **if acting makes sense at all**.
+
+---
+
 ### 1. Detectors (`detectors/`)
 
 Detectors are responsible for **observing system state**  

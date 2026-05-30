@@ -1,0 +1,81 @@
+- name: Ensure git is installed
+  ansible.builtin.package:
+    name: git
+    state: present
+
+- name: Clone Kokkan repository
+  ansible.builtin.git:
+    repo: https://github.com/Yane8058/Kokkan.git
+    dest: /opt/kokkan
+    version: main
+    force: false
+
+- name: Install Python dependencies
+  ansible.builtin.pip:
+    requirements: /opt/kokkan/requirement.txt
+
+- name: Copy systemd Kokkan service
+  ansible.builtin.copy:
+    src: /opt/kokkan/systemd/kokkan.service
+    dest: /etc/systemd/system/kokkan.service 
+    remote_src: true
+    owner: root
+    group: root
+    mode: "0644"
+
+  notify: 
+    - reload systemd service
+    - restart kokkan timer
+
+- name: Copy systemd Kokkan timer
+  ansible.builtin.copy:
+    src: /opt/kokkan/systemd/kokkan.timer
+    dest: /etc/systemd/system/kokkan.timer
+    remote_src: true
+    owner: root
+    group: root
+    mode: "0644"
+  
+  notify: 
+    - reload systemd service
+    - restart kokkan timer
+
+- name: Copy systemd Loki service
+  ansible.builtin.copy:
+    src: /opt/kokkan/systemd/loki.service
+    dest: /etc/systemd/system/loki.service     
+    remote_src: true
+    owner: root
+    group: root
+    mode: "0644"
+  
+  notify: 
+    - reload systemd service
+    - restart loki service
+
+- name: Copy systemd Promtail service
+  ansible.builtin.copy:
+    src: /opt/kokkan/systemd/promtail.service
+    dest: /etc/systemd/system/promtail.service 
+    remote_src: true
+    owner: root
+    group: root
+    mode: "0644"
+
+  notify: 
+    - reload systemd service
+    - restart promtail service
+
+- name: Reload systemd daemon
+  ansible.builtin.systemd:
+    daemon_reload: true
+
+- name: Enable and start services
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+    enabled: true
+    state: started
+  loop:
+    - kokkan.timer
+    - loki.service
+    - promtail.service

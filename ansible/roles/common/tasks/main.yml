@@ -1,0 +1,18 @@
+- name: Update and upgrade system
+  ansible.builtin.package:
+    update_cache: yes
+    upgrade: dist
+    cache_valid_time: 3600
+
+- name: Install base layer
+  ansible.builtin.apt:
+    name: "{{ common_packages + python_packages }}"
+    state: present
+    update_cache: yes
+
+- name: Enable and start services
+  ansible.builtin.systemd_service:
+    name: "{{ item }}"
+    state: started
+    enabled: true
+  loop: "{{ enable_services }}"

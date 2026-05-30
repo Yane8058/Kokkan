@@ -1,0 +1,18 @@
+common_packages:
+  - git
+  - vim
+  - curl
+  - fail2ban
+  - rsync
+  - rclone
+  - zram-tools
+  - arp-scan
+  - tlp
+  - tlp-rdw
+  - chrony
+  - ncdu
+
+enable_services:
+- chrony
+- zram-tools
+- fail2ban

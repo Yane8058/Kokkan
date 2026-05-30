@@ -54,46 +54,49 @@ Kokkan is built around a few strict principles:
 
 ---
 
-## High‑Level Architecture
-
-At a high level, Kokkan follows this flow:
-
-```
-Observation (detectors)
-↓
-Context & Correlation (engine)
-↓
-Policy Evaluation (config + safeguards)
-↓
-Optional Remediation (responders)
-↓
-Audit & Reporting
-```
-
-Policies define **what is allowed**.  
-- Safeguards ensure **it is not abused**.  
-- The engine decides **if acting makes sense at all**.
-
----
-
 ## Repository Structure
 
 ```
 Kokkan/
 ├── README.md
 ├── LICENSE
-├── .env-example
+├── .env.example
 ├── .gitignore
 ├── requirement.txt
 │
+├── ansible/
+│   ├── ansible.cfg
+│   ├── hosts.yml
+│   │
+│   ├── group_vars/
+│   │   ├── all.yml
+│   │   ├── docker.yml
+│   │   └── python.yml
+│   │
+│   ├── playbooks/
+│   │   └── deploy.yml
+│   │
+│   └── roles/
+│       ├── common/
+│       │   └── tasks/
+│       │       └── main.yml
+│       ├── docker/
+│       │   └── tasks/
+│       │       └── main.yml
+│       └── kokkan/
+│           ├── tasks/
+│           │   └── main.yml
+│           └── handlers/
+│               └── main.yml
+│
 ├── asset/
-|   ├── logo.png
-|   └── Kokkan_flowchart.png
+│   ├── logo.png
+│   └── Kokkan_flowchart.png
 │
 ├── config/
 │   ├── global.yaml
 │   ├── thresholds.yaml
-│   ├── correlationn.yaml
+│   ├── correlation.yaml
 │   ├── loki_config.yaml
 │   ├── promtail.yaml
 │   └── actions.yaml
@@ -104,14 +107,14 @@ Kokkan/
 │   ├── memory_pressure.py
 │   ├── cpu_spike.py
 │   └── network_latency.py
-│ 
+│
 ├── docker/
-│   ├── docekrfile
+│   ├── Dockerfile
 │   ├── docker-compose-OBS.yaml
 │   └── .dockerignore
 │
 ├── docs/
-│   ├── architecture.md
+│   └── architecture.md
 │
 ├── engine/
 │   ├── healer.py
@@ -136,128 +139,15 @@ Kokkan/
 │   ├── install.sh
 │   └── uninstall.sh
 │
-├── systemd/
-│   ├── loki.service
-│   ├── promtail.service
-│   ├── kokkan.service
-│   └── kokkan.timer
+└── systemd/
+    ├── loki.service
+    ├── promtail.service
+    ├── kokkan.service
+    └── kokkan.timer
 
 ```
-
----
-
-## Configuration Model
-
-Kokkan configuration is **purely declarative** and stored in YAML.
-
-- `global.yaml`  
-  Runtime behavior and environment flags (e.g. dry‑run, audit).
-
-- `thresholds.yaml`  
-  Defines **when a condition becomes meaningful**.
-
-- `actions.yaml`  
-  Defines **which actions are allowed**, and within which limits.
-
-- `correlation.yaml`  
-  Defines **the correlation between the threshold**.
-
-YAML files act as **structured dictionaries**, not as a DSL or scripting language.  
-All logic remains in the codebase.
-
----
-
-## Detectors
-
-Detectors observe system state and emit **neutral signals**.
-
-They:
-- do not read configuration files
-- do not make decisions
-- do not trigger actions
-
-Examples:
-- Disk usage pressure
-- Service health degradation
-- Memory pressure
-- CPU spikes
-- Network latency
-
-A detector answers only one question:
-> *“What do I observe right now?”*
-
----
-
-## Decision Engine
-
-The decision engine:
-- builds contextual understanding
-- correlates signals over time
-- evaluates policies
-- decides **whether an action is justified**
-
-Importantly:
-- it may decide **not to act**
-- it never bypasses safeguards
-
----
-
-## Safeguards
-
-Safeguards enforce **hard safety boundaries**, regardless of decisions.
-
-They include:
-- rate limiting
-- dry‑run enforcement
-- action validation
-- rollback protection
-
-Safeguards are policy‑driven but **implemented in code**,  
-ensuring enforcement even in edge cases.
-
----
-
-## Responders
-
-Responders perform **bounded remediation actions**, such as:
-- disk cleanup
-- service restart
-- log rotation
-- memory reclamation
-- process throttling
-
-Responders:
-- never decide *when* to run
-- never bypass safeguards
-- must be auditable and reversible when possible
-
----
-
-## Operational Model
-
-Kokkan is typically deployed as a scheduled or event‑driven service,
-often alongside existing monitoring systems.
-
-A common pattern is:
-- Monitoring detects anomalies
-- Kokkan evaluates whether safe remediation is permitted
-- Operators remain informed and in control
-
----
-
-## Status
-
-Kokkan is a **professional‑grade internal operations tool**.
-
-It is designed to be:
-- understandable
-- extensible
-- safe by default
-
-It intentionally avoids premature complexity and product‑level abstractions.
-
 ---
 
 ## License
 
-See the `LICENSE` file for details.
+MIT License — open source, use freely.
